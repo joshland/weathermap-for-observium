@@ -314,7 +314,6 @@ if(sizeof($hosts) > 0) {
 	// print $SQL_picklist;
 
 	$i=0;
-//	if( mysql_num_rows($result) > 0 )
 	if( mysqli_num_rows($result) > 0 )
 	{
 		//while ($queryrows = mysql_fetch_assoc($result)) {
@@ -489,7 +488,7 @@ if(sizeof($hosts) > 0) {
 	print '</form><div class="listcontainer"><ul id="dslist">';
 	//$result = mysql_query($SQL_picklist);
 	$result = mysqli_query($SQL_picklist);
-	if( mysql_num_rows($result) > 0)
+	if( mysqli_num_rows($result) > 0)
 	{
 		$i=0;
 		while($queryrows = mysql_fetch_assoc($result)) {
