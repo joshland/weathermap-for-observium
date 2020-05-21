@@ -30,13 +30,8 @@ else
 	$observium_found = FALSE;
 }
 
-// mysql_connect
-//$link = mysql_connect($config['db_host'],$config['db_user'],$config['db_pass'])
-//                or die('Could not connect: ' . mysql_error());
-//		mysql_select_db($config['db_name'],$link) or die('Could not select database: '.mysql_error());
-$link = mysqli_connect($config['db_host'],$config['db_user'],$config['db_pass'])
-                or die('Could not connect: ' . mysqli_error());
-		mysqli_select_db($link,$config['db_name']) or die('Could not select database: '.mysqli_error());
+$link = mysqli_connect($config['db_host'],$config['db_user'],$config['db_pass']) or die('Could not connect: ' . mysqli_error());
+mysqli_select_db($link, $config['db_name']) or die('Could not select database: '.mysqli_error());
 
 
 // ******************************************
@@ -284,13 +279,14 @@ if(sizeof($hosts) > 0) {
 
 	print '<option '.($host_id==-1 ? 'SELECTED' : '' ).' value="-1">Any</option>';
 	print '<option '.($host_id==0 ? 'SELECTED' : '' ).' value="0">None</option>';
-	//while ($host = mysql_fetch_assoc($result))
+
 	while ($host = mysqli_fetch_assoc($result))
 	{
 		print '<option ';
 		if($host_id==$host['device_id']) print " SELECTED ";
 		print 'value="'.$host['device_id'].'">'.$host['hostname'].'</option>';
 	}
+
 	print '</select><br />';
 }
 
@@ -308,10 +304,7 @@ if(sizeof($hosts) > 0) {
 	}
 	
 	$query .= " ORDER BY hostname,ports.ifAlias";
-	//$result = mysql_query($query);
 	$result = mysqli_query($link, $query);
-
-	// print $SQL_picklist;
 
 	$i=0;
 	if( mysqli_num_rows($result) > 0 )
@@ -331,12 +324,6 @@ if(sizeof($hosts) > 0) {
 		print "<li>No results...</li>";
 	}
 
-	// Free resultset
-	//mysql_free_result($result);
-
-	// Closing connection
-	//mysql_close($link);
-
 ?>
 </ul>
 </div>
@@ -349,27 +336,20 @@ if(isset($_REQUEST['command']) && $_REQUEST["command"]=='node_step1')
 {
 	$host_id = -1;
 	$SQL_picklist = "SELECT `device_id` AS `id`,`hostname` AS `name` FROM devices ORDER BY hostname";
-	//$SQL_picklist = "SELECT 1,2,'Test','Y','/dsad'";
-	
+
 	$overlib = true;
 	$aggregate = false;
-	
+
 	if(isset($_REQUEST['aggregate'])) $aggregate = ( $_REQUEST['aggregate']==0 ? false : true);
 	if(isset($_REQUEST['overlib'])) $overlib= ( $_REQUEST['overlib']==0 ? false : true);
-	
-	
+
 	if(isset($_REQUEST['host_id']))
 	{
 		$host_id = intval($_REQUEST['host_id']);
-		//if($host_id>=0) $SQL_picklist .= " and graph_local.host_id=$host_id ";
 	}
-	//$SQL_picklist .= " order by title_cache";	
-	
-	//$query = mysql_query("SELECT id,hostname AS name FROM `devices` ORDER BY hostname");
-	//$hosts = mysql_fetch_assoc($query);	
-	 $query = mysqli_query("SELECT id,hostname AS name FROM `devices` ORDER BY hostname");
-	 $hosts = mysqli_fetch_assoc($query);	
 
+    $query = mysqli_query($link, "SELECT `device_id` AS `id`,`hostname` AS `name` FROM devices ORDER BY hostname");
+    $hosts = mysqli_fetch_assoc($query);
 ?>
 <html>
 <head>
@@ -465,12 +445,15 @@ if(isset($_REQUEST['command']) && $_REQUEST["command"]=='node_step1')
 <body>
 
 <h3>Pick a graph:</h3>
-
+<!-- Hosts Found -->
+<?php
+echo "<!-- $hosts -->"
+?>           
 <form name="mini">
 <?php 
 if(sizeof($hosts) > 0) {
 	print 'Host: <select name="host_id"  onChange="applyDSFilterChange(document.mini)">';
-
+    
 	print '<option '.($host_id==-1 ? 'SELECTED' : '' ).' value="-1">Any</option>';
 	print '<option '.($host_id==0 ? 'SELECTED' : '' ).' value="0">None</option>';
 	foreach ($hosts as $host)
@@ -482,29 +465,26 @@ if(sizeof($hosts) > 0) {
 	print '</select><br />';
 }
 
-	print '<span class="filter" style="display: none;">Filter: <input id="filterstring" name="filterstring" size="20"> (case-sensitive)<br /></span>';
-	print '<input id="overlib" name="overlib" type="checkbox" value="yes" '.($overlib ? 'CHECKED' : '' ).'> <label for="overlib">Set both OVERLIBGRAPH and INFOURL.</label><br />';
-
-	print '</form><div class="listcontainer"><ul id="dslist">';
-	//$result = mysql_query($SQL_picklist);
-	$result = mysqli_query($SQL_picklist);
-	if( mysqli_num_rows($result) > 0)
-	{
-		$i=0;
-		while($queryrows = mysql_fetch_assoc($result)) {
-			echo "<li class=\"row".($i%2)."\">";
-			$key = $queryrows['id'];
-			$name = $queryrows['name'];
-			echo "<a href=\"#\" onclick=\"update_source_step1('$key','$name')\">". $queryrows['name'] . "</a>";
-			echo "</li>\n";
-			$i++;
-		}
-	}
-	else
-	{
-		print "No results...";
-	}
-
+print '<span class="filter" style="display: none;">Filter: <input id="filterstring" name="filterstring" size="20"> (case-sensitive)<br /></span>';
+print '<input id="overlib" name="overlib" type="checkbox" value="yes" '.($overlib ? 'CHECKED' : '' ).'> <label for="overlib">Set both OVERLIBGRAPH and INFOURL.</label><br />';
+print '</form><div class="listcontainer"><ul id="dslist">';
+$result = mysqli_query($link, $SQL_picklist);
+if( mysqli_num_rows($result) > 0)
+{
+    $i=0;
+    while($queryrows = mysqli_fetch_assoc($result)) {
+        echo "<li class=\"row".($i%2)."\">";
+        $key = $queryrows['id'];
+        $name = $queryrows['name'];
+        echo "<a href=\"#\" onclick=\"update_source_step1('$key','$name')\">". $queryrows['name'] . "</a>";
+        echo "</li>\n";
+        $i++;
+    }
+}
+else
+{
+    print "No results...";
+}
 ?>
 </ul>
 </body>
