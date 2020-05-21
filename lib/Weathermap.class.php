@@ -1764,7 +1764,7 @@ function ReadConfig($input, $is_include=FALSE)
 		 wm_debug("ReadConfig Detected that this is a config fragment.\n");
 			 // strip out any Windows line-endings that have gotten in here
 			 $input=str_replace("\r", "", $input);
-			 $lines = split("/n",$input);
+			 $lines = explode("/n",$input);
 			 $filename = "{text insert}";
 	}
 	else

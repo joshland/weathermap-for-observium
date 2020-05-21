@@ -17,7 +17,7 @@
       // <tr><td class="e">System </td><td class="v">Windows NT BLINKYZERO 6.0 build 6000 </td></tr>
       // since preg_* are potentially missing, we'll have to do this without regexps.
       foreach (explode("\n",$s) as $line)
-      {
+			{
             $line = str_replace('<tr><td class="e">','',$line);
             $line = str_replace('</td></tr>','',$line);
             $line = str_replace(' </td><td class="v">',' => ',$line);
@@ -192,7 +192,7 @@
 		else
 		{
 		    $wnotes = wordwrap($notes,50);
-			$lines = split("\n",$wnotes);
+			$lines = explode("\n",$wnotes);
 			$i=0;
 			foreach ($lines as $noteline)
 			{
