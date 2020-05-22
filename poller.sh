@@ -4,9 +4,9 @@
 #
 
 BASEDIR=/opt/observium/html/weathermap
-CONFIGS=${BASEDIR}/configs
-OUTPUT=${BASEDIR}/output
-HREF="https://observium.erickson.is/"
+CONFIGS=configs
+OUTPUT=output
+HREF="https://observium.erickson.is/weathermap/"
 
 pushd ${BASEDIR}
 for config in $(ls ${CONFIGS}|grep 'conf$'); do
